@@ -81,3 +81,12 @@ __fim:
 movq %rbx, %rax
 popq %rbp
 ret
+
+_memory_free:
+pushq %rbp
+movq %rsp, %rbp
+movq 16(%rbp), %rax
+subq $16, %rax
+movq $0, (%rax)
+popq %rbp
+ret
