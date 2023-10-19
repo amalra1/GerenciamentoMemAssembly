@@ -12,9 +12,9 @@ ret
 _dismiss_brk:
 pushq %rbp
 movq %rsp, %rbp
-movq TOPO_HEAP, %rdi
-movq $12, %rax
-syscall
+movq TOPO_HEAP, %rdi        ; -> Restaura o endereço de brk,
+movq $12, %rax              ; levando-o novamente para
+syscall                     ; o topo da heap.
 popq %rbp
 ret
 
