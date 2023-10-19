@@ -68,7 +68,7 @@ __caso_indisponivel:
 addq %rcx, %rbx             ; -> Adiciona o tamanho do bloco no iterador, levando-o
 jmp __loop                  ; ao bloco seguinte. -> Retorna para o loop.
 __fora_loop:
-addq 16(%rbp), %rax         ; -> Obtém o valor referente ao tamanho da alocação.
+addq 16(%rbp), %rax         ; -> Adicona em brk atual o valor referente ao tamanho da alocação.
 addq $16, %rax              ; -> Adiciona 8 para disp. e 8 para armazenar o tamanho.
 movq %rax, %rdi             
 movq $12, %rax              ; -> Redefine o brk.
