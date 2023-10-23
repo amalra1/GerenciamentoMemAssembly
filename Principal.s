@@ -42,12 +42,15 @@ ret
 _start:
 pushq %rbp
 movq %rsp, %rbp
+
+/* armazena o topo da heap */
 call _setup_brk
 movq %rax, TOPO_HEAP
 movq $PRINTDATA_TOPO_HEAP, %rdi
 movq TOPO_HEAP, %rsi
 call printf
 
+/* a = malloc(100) */
 pushq $100
 pushq -8(%rbp)
 call _memory_alloc
@@ -57,6 +60,7 @@ pushq -8(%rbp)
 call _verifica_end_alocacao
 addq $8, %rsp
 
+/* b = malloc(50) */
 pushq $50
 pushq -16(%rbp)
 call _memory_alloc
@@ -66,6 +70,7 @@ pushq -16(%rbp)
 call _verifica_end_alocacao
 addq $8, %rsp
 
+/* c = malloc(50) */
 pushq $50
 pushq -24(%rbp)
 call _memory_alloc
@@ -75,6 +80,7 @@ pushq -24(%rbp)
 call _verifica_end_alocacao
 addq $8, %rsp
 
+/* free(b) */
 movq %rbp, %r12
 subq $16, %r12
 pushq %r12
@@ -82,17 +88,20 @@ call _memory_free
 call _verifica_desalocacao
 addq $8, %rsp
 
+/* free(c) */
 subq $8, %r12
 pushq %r12
 call _memory_free
 call _verifica_desalocacao
 addq $8, %rsp
 
+/* free(c) */
 pushq %r12
 call _memory_free
 call _verifica_desalocacao
 addq $8, %rsp
 
+/* b = malloc(75) */
 pushq $75
 pushq -32(%rbp)
 call _memory_alloc
@@ -102,6 +111,7 @@ pushq -16(%rbp)
 call _verifica_end_alocacao
 addq $8, %rsp
 
+/* c = malloc(30) */
 pushq $30
 pushq -32(%rbp)
 call _memory_alloc
@@ -111,6 +121,7 @@ pushq -24(%rbp)
 call _verifica_end_alocacao
 addq $8, %rsp
 
+/* d = malloc(9) */
 pushq $9
 pushq -32(%rbp)
 call _memory_alloc
@@ -119,3 +130,9 @@ pushq %rax
 pushq -32(%rbp)
 call _verifica_end_alocacao
 addq $8, %rsp
+
+call _dismiss_brk
+addq $40, %rsp
+movq $0, %rdi
+movq $60, %rax
+syscall
