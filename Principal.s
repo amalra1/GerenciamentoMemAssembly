@@ -1,3 +1,6 @@
+/*--    ----    ----    ----    ----    ----    ----
+    ----    ----    ----    ----    ----    ----    --*/
+
 .section .data
 TOPO_HEAP: .quad
 PRINTDATA_TOPO_HEAP: .string "Endereço TOPO_HEAP: %p\n"
@@ -11,7 +14,7 @@ PRINTDATA_ERRO: .string "Erro, endereço já desalocado!\n"
 .section .text
 .global _start
 
-/* Funções auxiliares --------------------------------*/
+/* Funções auxiliares ------------------------------- */
 
 _verifica_desalocacao:
 cmp $0, %rax
@@ -34,7 +37,7 @@ call printf
 popq %rbp
 ret
 
-/* Principal -----------------------------------------*/
+/* Principal ---------------------------------------- */
 
 _start:
 pushq %rbp
