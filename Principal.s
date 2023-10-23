@@ -20,12 +20,11 @@ _verifica_desalocacao:
 cmp $0, %rax
 je __sucesso_aloc
 movq $PRINTDATA_ERRO, %rdi
-call printf
 jmp __fim_sucesso
 __sucesso_aloc:
 movq $PRINTDATA_SUCESSO, %rdi
-call printf
 __fim_sucesso:
+call printf
 ret
 
 _verifica_end_alocacao:
