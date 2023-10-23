@@ -88,7 +88,7 @@ movq %rsp, %rbp
 movq 16(%rbp), %rax         ; -> %rax = endereço passado por parâmetro.
 movq (%rax), %rbx           ; -> %rbx = endereço do bloco a ser desalocado.
 subq $16, %rbx
-movq (%rbx), %rcx           ; -> %rax = disponibilidade do bloco.
+movq (%rbx), %rcx           ; -> %rcx = disponibilidade do bloco.
 cmp $0, %rcx                ; -> Verifica se o bloco já está desalocado.
 je __desalocado
 movq $0, %rcx               ; -> Marca como livre.
