@@ -12,7 +12,7 @@ PRINTDATA_ERRO: .string "Erro, endereço já desalocado!\n"
     ----    ----    ----    ----    ----    ----    --*/
 
 .section .text
-.global _start
+.global _start, TOPO_HEAP
 
 /* Funções auxiliares ------------------------------- */
 
