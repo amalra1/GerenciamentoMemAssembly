@@ -26,12 +26,17 @@ TOPO_HEAP: .quad
 /* Funções auxiliares ------------------------------- */
 
 _imprime:
-movq %rsp, %rbx
+pushq %rbp
+movq %rsp, %rbp
+movq %rsp, %r12
 call printf
-movq %rbx, %rsp
+movq %r12, %rsp
+popq %rbp
 ret
 
 _verifica_desalocacao:
+pushq %rbp
+movq %rsp, %rbp
 cmp $0, %rax
 je __sucesso_aloc
 mov $PRINTDATA_ERRO, %rdi
@@ -40,6 +45,7 @@ __sucesso_aloc:
 mov $PRINTDATA_SUCESSO, %rdi
 __fim_sucesso:
 call _imprime
+popq %rbp
 ret
 
 _verifica_end_alocacao:
@@ -66,7 +72,7 @@ mov $PRINTDATA_TOPO_HEAP, %rdi
 movq TOPO_HEAP, %rsi
 call _imprime
 
-/* a = malloc(100) 
+/* a = malloc(100) */
 pushq $100
 pushq -8(%rbp)
 call _memory_alloc
@@ -74,12 +80,16 @@ addq $16, %rsp
 pushq %rax
 pushq -8(%rbp)
 call _verifica_end_alocacao
+#############
+mov $PRINTDATA_INICIO, %rdi
+call _imprime
+#############
 addq $8, %rsp
 #############
-#mov $PRINTDATA_INICIO, %rdi
-#call _imprime
+mov $PRINTDATA_INICIO, %rdi
+call _imprime
 #############
-*/
+
 
 /* b = malloc(50) 
 pushq $50
