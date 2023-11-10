@@ -4,10 +4,12 @@
     ----    ----    ----    ----    ----    ----    --*/
 
 .section .text
-.extern TOPO_HEAP, PRINTESTE, PRINTESTED
-.global _setup_brk, _dismiss_brk, _memory_alloc, _memory_free 
+.global TOPO_HEAP
+TOPO_HEAP: .quad 0
+.extern PRINTESTE, PRINTESTED
+.global setup_brk, dismiss_brk, memory_alloc, memory_free 
 
-_setup_brk:
+setup_brk:
 pushq %rbp
 movq %rsp, %rbp
 movq $0, %rdi               # -> Retorna o valor atual
@@ -16,7 +18,7 @@ syscall                     # %rax.
 popq %rbp
 ret
 
-_dismiss_brk:
+dismiss_brk:
 pushq %rbp
 movq %rsp, %rbp
 movq TOPO_HEAP, %rdi        # -> Restaura o endereço de brk,
@@ -25,11 +27,11 @@ syscall                     # o topo da heap.
 popq %rbp
 ret
 
-_memory_alloc:
+memory_alloc:
 pushq %rbp
 movq %rsp, %rbp
 movq TOPO_HEAP, %rbx        # -> %rbx = TOPO_HEAP
-call _setup_brk             
+call setup_brk             
 movq %rax, %r12             # -> %r12 = brk atual
 __loop:
 cmp %rbx, %r12              # -> Verifica se %rbx atingiu o brk atual
@@ -93,7 +95,7 @@ movq %rbx, %rax             # -> Endereço do bloco alocado agora em %rax.
 popq %rbp
 ret
 
-_memory_free:
+memory_free:
 pushq %rbp
 movq %rsp, %rbp
 movq 16(%rbp), %rax         # -> %rax = endereço passado por parâmetro.
