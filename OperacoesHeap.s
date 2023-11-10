@@ -13,9 +13,18 @@ setup_brk:
 pushq %rbp
 movq %rsp, %rbp
 movq $0, %rdi               # -> Retorna o valor atual
-movq $12, %rax              # de brk e o armazena em
+movq $12, %rax              # de brk e o armazena em rax
 syscall
 movq %rax, TOPO_HEAP                   
+popq %rbp
+ret
+
+get_brk:                    # Essa função não altera o valor do topo da heap, diferente da setup
+pushq %rbp
+movq %rsp, %rbp
+movq $0, %rdi               # -> Retorna o valor atual
+movq $12, %rax              # de brk e o armazena em rax
+syscall                
 popq %rbp
 ret
 
@@ -31,8 +40,8 @@ ret
 memory_alloc:
 pushq %rbp
 movq %rsp, %rbp
-movq TOPO_HEAP, %rbx        # -> %rbx = TOPO_HEAP
-call setup_brk             
+call get_brk
+movq TOPO_HEAP, %rbx        # -> %rbx = TOPO_HEAP             
 movq %rax, %r12             # -> %r12 = brk atual
 __loop:
 cmp %rbx, %r12              # -> Verifica se %rbx atingiu o brk atual
