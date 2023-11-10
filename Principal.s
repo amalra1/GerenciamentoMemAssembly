@@ -4,8 +4,8 @@
     ----    ----    ----    ----    ----    ----    --*/
 
 .section .data
-PRINTESTE1 : .string "\n\nTeste1 = %p\n\n"
-PRINTESTE2 : .string "\n\nTeste2 = %p\n\n"
+PRINTESTE1: .string "\n\nTeste1 = %p\n\n"
+PRINTESTE2: .string "\n\nTeste2 = %p\n\n"
 PRINTDATA_INICIO: .string "\nIniciando manipulação da seção heap!\n"
 PRINTDATA_TOPO_HEAP: .string "Endereço TOPO_HEAP: %p\n"
 PRINTDATA_END_ALOC: .string "Endereço da alocação: %p\n"
