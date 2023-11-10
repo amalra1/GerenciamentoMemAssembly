@@ -2,10 +2,10 @@
 
 /*--    ----    ----    ----    ----    ----    ----
     ----    ----    ----    ----    ----    ----    --*/
-
-.section .text
+.section .data
 .global TOPO_HEAP
 TOPO_HEAP: .quad 0
+.section .text
 .extern PRINTESTE, PRINTESTED
 .global setup_brk, dismiss_brk, memory_alloc, memory_free 
 
@@ -14,7 +14,8 @@ pushq %rbp
 movq %rsp, %rbp
 movq $0, %rdi               # -> Retorna o valor atual
 movq $12, %rax              # de brk e o armazena em
-syscall                     # %rax.
+syscall
+movq %rax, TOPO_HEAP                   
 popq %rbp
 ret
 
