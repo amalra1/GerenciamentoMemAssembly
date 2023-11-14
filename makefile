@@ -1,26 +1,24 @@
 # Compilador (montador)
 AS = as
+CC = gcc
 
 # Ligador
 LD = ld
 
 # Objetos compilados
-OBJETOS = OperacoesHeap.o Principal.o
+OBJETOS = OperacoesHeap.o testeProfessor.o
      
-all: Principal
+all: testeProfessor
 
-Principal: $(OBJETOS)
-	$(LD) $^ -o $@ -dynamic-linker /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 -lc \
-	/usr/lib/x86_64-linux-gnu/crt1.o \
-	/usr/lib/x86_64-linux-gnu/crti.o \
-	/usr/lib/x86_64-linux-gnu/crtn.o
+testeProfessor: $(OBJETOS)
+	$(CC) -no-pie -fno-pie $^ -o $@ -Wall -g
 
 
 OperacoesHeap.o: OperacoesHeap.s
 	$(AS) $< -o $@
 
-Principal.o: Principal.s
-	$(AS) $< -o $@
+testeProfessor.o: testeProfessor.c memalloc.h
+	$(CC) -c $^ -o $@
 
 clean:
-	rm -f $(OBJETOS) Principal
+	rm -f $(OBJETOS) testeProfessor

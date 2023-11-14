@@ -1,6 +1,3 @@
-# .section .note.GNU-stack,"",%progbits
-/*--    ----    ----    ----    ----    ----    ----
-    ----    ----    ----    ----    ----    ----    --*/
 .section .data
 .global TOPO_HEAP
 TOPO_HEAP: .quad 0
@@ -52,7 +49,7 @@ movq -16(%rbx), %r15
 cmp $1, %r15                # -> Verifica se o bloco está ocupado.
 je __caso_indisponivel
 __teste_tamanho:
-cmp 16(%rbp), %r13          # -> Verifica se o tamanho do bloco atual é
+cmp %rdi, %r13              # -> Verifica se o tamanho do bloco atual é
 je __caso_igual             # maior ou igual ao tamanho referente
 jg __caso_maior             # à alocação desejada.
 movq %rbx, %r14
@@ -68,13 +65,13 @@ addq (%r14), %r13           # bloco seguinte + 16 (8 para disp. e 8 para tam.).
 jmp __teste_tamanho
 __caso_maior:
 movq %r13, %r14             # -> Compara se a diferença entre o tamanho do bloco atual
-subq 16(%rbp), %r14         # e o tamanho requisitado para a alocação é pelo menos 17
+subq %rdi, %r14             # e o tamanho requisitado para a alocação é pelo menos 17
 cmp $17, %r14               # (8 para disp. 8 para tam. e pelo menos 1 para os dados).
 jl __caso_igual             # Caso seja menor, não haverá como criar um novo bloco...
 subq $16, %r14              # -> Subtrai 16 do tamanho utilizavel deste novo bloco.
 pushq %r12                  # -> Empilha os valores de %r12 e %r14 para
 pushq %r14                  # podermos utilizar estes registradores.
-movq 16(%rbp), %r13         # -> Substitui o tamanho do bloco atual.
+movq %rdi, %r13         # -> Substitui o tamanho do bloco atual.
 movq %rbx, %r14
 addq %r13, %r14
 movq $0, (%r14)             # -> Marca o bloco criado como disponível.
@@ -89,15 +86,15 @@ __caso_indisponivel:
 addq %r13, %rbx             # -> Adiciona o tamanho do bloco no iterador, levando-o
 jmp __loop                  # ao bloco seguinte. -> Retorna para o loop.
 __fora_loop:
-addq 16(%rbp), %r12         # -> Adicona em brk atual o valor referente ao tamanho da alocação.
+addq %rdi, %r12             # -> Adicona em brk atual o valor referente ao tamanho da alocação.
 addq $16, %r12              # -> Adiciona 8 para disp. e 8 para armazenar o tamanho.
 movq %r12, %rdi             
-movq 16(%rbp), %r15         # ERRADO ---- PARAMETRO TA COMO 0 E NAO COMO O TAM # -> Transfere o tamanho passado por parametro pro %r15
+movq %rdi, %r15
 movq $12, %rax              # -> Redefine o brk.
 syscall
 movq $1, (%rbx)             # -> Marca como ocupado.
 addq $8, %rbx
-movq %r15, (%rbx)           # ESSA LINHA se voce trocar %r15, por 100, funciona o primeiro teste# -> Grava o tamanho do bloco de dados.
+movq %r15, (%rbx)
 addq $8, %rbx
 __fim:
 movq %rbx, %rax             # -> Endereço do bloco alocado agora em %rax.
@@ -107,11 +104,13 @@ ret
 memory_free:
 pushq %rbp
 movq %rsp, %rbp
-movq 16(%rbp), %rbx         # -> %rbx = endereço passado por parâmetro.
+call get_brk
+movq %rax, %r15             # -> %r15 = brk atual
+movq %rdi, %rbx             # -> %rbx = endereço passado por parâmetro.
 movq (%rbx), %r12           # -> %r12 = endereço do bloco a ser desalocado.
 cmp %r12, TOPO_HEAP 
 jge __erro                  # -> Verifica se o endereço está entre o TOPO_HEAP
-cmp %r12, %rsp              # e o %rsp.
+cmp %r12, %r15              # e o brk_atual.
 jle __erro
 subq $16, %r12
 movq (%r12), %r13           # -> %r13 = disponibilidade do bloco.
