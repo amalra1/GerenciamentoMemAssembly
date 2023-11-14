@@ -36,7 +36,9 @@ int main() {
 
 	printf("==>> DESALOCANDO UM ESPAÇO DE 100 BYTES:\n");
 	memory_free(alloc_pointers[0]);
+	//printf("\tLOCAL: %s\n", alloc_pointers[0]-16 == initial_brk ? "CORRETO!" : "INCORRETO!");
 	printf("\tIND. DE USO: %s\n", *((long long*) (alloc_pointers[0]-16)) == 0 ? "CORRETO!" : "INCORRETO!");
+	printf("\t%lld\n", *((long long*) (alloc_pointers[0]-16)));
 	printf("\tTAMANHO: %s\n", *((long long*) (alloc_pointers[0]-8)) == 100 ? "CORRETO!" : "INCORRETO!");
 
 	double_alloc_after_free(alloc_pointers);
