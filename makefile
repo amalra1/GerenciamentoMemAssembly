@@ -18,7 +18,7 @@ OperacoesHeap.o: OperacoesHeap.s
 	$(AS) $< -o $@
 
 testeProfessor.o: testeProfessor.c memalloc.h
-	$(CC) -c $^ -o $@
+	$(CC) -c $^ 
 
 clean:
 	rm -f $(OBJETOS) testeProfessor
