@@ -36,6 +36,7 @@ ret
 memory_alloc:
 pushq %rbp
 movq %rsp, %rbp
+movq %rdi, %r15             # -> Coloca o tamanho no %r15
 call get_brk
 movq TOPO_HEAP, %rbx        # -> %rbx = TOPO_HEAP             
 movq %rax, %r12             # -> %r12 = brk atual
@@ -88,8 +89,7 @@ jmp __loop                  # ao bloco seguinte. -> Retorna para o loop.
 __fora_loop:
 addq %rdi, %r12             # -> Adicona em brk atual o valor referente ao tamanho da alocação.
 addq $16, %r12              # -> Adiciona 8 para disp. e 8 para armazenar o tamanho.
-movq %r12, %rdi             
-movq %rdi, %r15
+movq %r12, %rdi            
 movq $12, %rax              # -> Redefine o brk.
 syscall
 movq $1, (%rbx)             # -> Marca como ocupado.
@@ -104,21 +104,21 @@ ret
 memory_free:
 pushq %rbp
 movq %rsp, %rbp
+movq %rdi, %rbx             # -> %rbx = endereço passado como parâmetro
 call get_brk
 movq %rax, %r15             # -> %r15 = brk atual
-movq %rdi, %rbx             # -> %rbx = endereço passado por parâmetro.
-movq (%rbx), %r12           # -> %r12 = endereço do bloco a ser desalocado.
-cmp %r12, TOPO_HEAP 
-jge __erro                  # -> Verifica se o endereço está entre o TOPO_HEAP
-cmp %r12, %r15              # e o brk_atual.
-jle __erro
-subq $16, %r12
-movq (%r12), %r13           # -> %r13 = disponibilidade do bloco.
-movq $0, %r13               # -> Marca como livre.
+# movq (%rbx), %r12           # -> %r12 = endereço do bloco a ser desalocado.
+# cmp %r12, TOPO_HEAP 
+# jge __erro                  # -> Verifica se o endereço está entre o TOPO_HEAP
+# cmp %r12, %r15              # e o brk_atual.
+# jle __erro
+subq $16, %rbx
+# movq (%r12), %r13           # -> %r13 = disponibilidade do bloco.
+movq $0, (%rbx)               # -> Marca como livre.
 movq $0, %rax               # -> Retorna 0, indicando sucesso.
-jmp __fim_erro
-__erro:
-movq $1, %rax               # -> Retorna 1, indicando erro.
-__fim_erro:
+# jmp __fim_erro
+# __erro:
+# movq $1, %rax               # -> Retorna 1, indicando erro.
+# __fim_erro:
 popq %rbp
 ret
