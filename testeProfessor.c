@@ -22,15 +22,17 @@ int main() {
 	printf("============================== ROTINAS DE TESTE ==============================\n");
 	
 	setup_brk();
+    printf("%p\n", TOPO_HEAP);
 	void *initial_brk = TOPO_HEAP;
 	void *alloc_pointers[3];
 
-    printf("%p\n", TOPO_HEAP);
 	simple_alloc(alloc_pointers);
 	printf("==>> ALOCANDO UM ESPAÇO DE 100 BYTES:\n");
 	printf("\tLOCAL: %s\n", alloc_pointers[0]-16 == initial_brk ? "CORRETO!" : "INCORRETO!");
 	printf("\tIND. DE USO: %s\n", *((long long*) (alloc_pointers[0]-16)) == 1 ? "CORRETO!" : "INCORRETO!");
+	printf("\t%lld\n", *((long long*) (alloc_pointers[0]-16)));
 	printf("\tTAMANHO: %s\n", *((long long*) (alloc_pointers[0]-8)) == 100 ? "CORRETO!" : "INCORRETO!");
+    printf("\t%lld\n", *((long long*) (alloc_pointers[0]-8)));
 
 	printf("==>> DESALOCANDO UM ESPAÇO DE 100 BYTES:\n");
 	memory_free(alloc_pointers[0]);
