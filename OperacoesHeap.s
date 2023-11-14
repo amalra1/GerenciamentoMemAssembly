@@ -1,5 +1,4 @@
-.section .note.GNU-stack,"",%progbits
-
+# .section .note.GNU-stack,"",%progbits
 /*--    ----    ----    ----    ----    ----    ----
     ----    ----    ----    ----    ----    ----    --*/
 .section .data
@@ -93,12 +92,12 @@ __fora_loop:
 addq 16(%rbp), %r12         # -> Adicona em brk atual o valor referente ao tamanho da alocação.
 addq $16, %r12              # -> Adiciona 8 para disp. e 8 para armazenar o tamanho.
 movq %r12, %rdi             
+movq 16(%rbp), %r15         # ERRADO ---- PARAMETRO TA COMO 0 E NAO COMO O TAM # -> Transfere o tamanho passado por parametro pro %r15
 movq $12, %rax              # -> Redefine o brk.
 syscall
 movq $1, (%rbx)             # -> Marca como ocupado.
 addq $8, %rbx
-movq 16(%rbp), %r15
-movq %r15, (%rbx)           # -> Grava o tamanho do bloco de dados.
+movq %r15, (%rbx)           # ESSA LINHA se voce trocar %r15, por 100, funciona o primeiro teste# -> Grava o tamanho do bloco de dados.
 addq $8, %rbx
 __fim:
 movq %rbx, %rax             # -> Endereço do bloco alocado agora em %rax.
@@ -108,17 +107,19 @@ ret
 memory_free:
 pushq %rbp
 movq %rsp, %rbp
-movq 16(%rbp), %rax         # -> %rax = endereço passado por parâmetro.
-movq (%rax), %rbx           # -> %rbx = endereço do bloco a ser desalocado.
-subq $16, %rbx
-movq (%rbx), %rcx           # -> %rcx = disponibilidade do bloco.
-cmp $0, %rcx                # -> Verifica se o bloco já está desalocado.
-je __desalocado
-movq $0, %rcx               # -> Marca como livre.
+movq 16(%rbp), %rbx         # -> %rbx = endereço passado por parâmetro.
+movq (%rbx), %r12           # -> %r12 = endereço do bloco a ser desalocado.
+cmp %r12, TOPO_HEAP 
+jge __erro                  # -> Verifica se o endereço está entre o TOPO_HEAP
+cmp %r12, %rsp              # e o %rsp.
+jle __erro
+subq $16, %r12
+movq (%r12), %r13           # -> %r13 = disponibilidade do bloco.
+movq $0, %r13               # -> Marca como livre.
 movq $0, %rax               # -> Retorna 0, indicando sucesso.
-jmp __fim_desalocacao
-__desalocado:
+jmp __fim_erro
+__erro:
 movq $1, %rax               # -> Retorna 1, indicando erro.
-__fim_desalocacao:
+__fim_erro:
 popq %rbp
 ret
