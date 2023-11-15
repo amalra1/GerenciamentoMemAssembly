@@ -1,5 +1,6 @@
 .section .data
 .global TOPO_HEAP
+PRINTERRO: .string "Valor = %d\n"
 TOPO_HEAP: .quad 0
 .section .text
 .extern PRINTESTE, PRINTESTED
@@ -49,6 +50,16 @@ cmp $1, %r11                # -> Verifica se o bloco está ocupado.
 je __caso_indisponivel
 __teste_tamanho:
 movq -8(%rbx), %r13         # -> Armazena o tamanho do bloco atual em %r13.
+############
+movq $PRINTERRO, %rdi
+movq %r13, %rsi
+call printf
+############
+############
+movq $PRINTERRO, %rdi
+movq %r15, %rsi
+call printf
+############
 cmp %r15, %r13              # -> Verifica se o tamanho do bloco atual é
 je __caso_igual             # maior ou igual ao tamanho referente
 jg __caso_maior             # à alocação desejada.
@@ -70,16 +81,12 @@ subq %r15, %r14             # e o tamanho requisitado para a alocação é pelo 
 cmp $17, %r14               # (8 para disp. 8 para tam. e pelo menos 1 para os dados).
 jl __caso_igual             # Caso seja menor, não haverá como criar um novo bloco...
 subq $16, %r14              # -> Subtrai 16 do tamanho utilizavel deste novo bloco.
-pushq %r12                  # -> Empilha os valores de %r12 e %r14 para
-pushq %r14                  # podermos utilizar estes registradores.
 movq %r15, -8(%rbx)         # -> Substitui o tamanho do bloco atual.
-movq %rbx, %r14
-addq %r13, %r14
-movq $0, (%r14)             # -> Marca o bloco criado como disponível.
-addq $8, %r14
-popq %r12
-movq %r12, (%r14)           # -> Grava o tamanho do bloco criado. 
-popq %r12                   # -> Desempilha o valor do atual brk novamente em %r12.
+movq %rbx, %r10
+addq %r15, %r10
+movq $0, (%r10)             # -> Marca o bloco criado como disponível.
+addq $8, %r10
+movq %r14, (%r10)           # -> Grava o tamanho do bloco criado. 
 __caso_igual:
 movq $1, -16(%rbx)          # -> Marca o bloco atual como ocupado.
 jmp __fim
@@ -107,16 +114,16 @@ movq %rsp, %rbp
 movq %rdi, %rbx
 call get_brk
 movq %rax, %r13             # -> %r13 = brk atual
-# cmp %r12, TOPO_HEAP 
-# jge __erro                  # -> Verifica se o endereço está entre o TOPO_HEAP
-# cmp %r12, %r13              # e o brk_atual.
-# jle __erro
+cmp %rbx, TOPO_HEAP 
+jge __erro                  # -> Verifica se o endereço está entre o TOPO_HEAP
+cmp %rbx, %r13              # e o brk_atual.
+jle __erro
 subq $16, %rbx
 movq $0, (%rbx)             # -> Marca como livre.
 movq $0, %rax               # -> Retorna 0, indicando sucesso.
-# jmp __fim_erro
-# __erro:
-# movq $1, %rax               # -> Retorna 1, indicando erro.
-# __fim_erro:
+jmp __fim_erro
+__erro:
+movq $1, %rax               # -> Retorna 1, indicando erro.
+__fim_erro:
 popq %rbp
 ret
