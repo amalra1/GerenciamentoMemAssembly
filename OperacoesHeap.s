@@ -16,13 +16,13 @@ popq %rbp
 ret
 
 get_brk:                    # Essa função não altera o valor do topo da heap, diferente da setup
-pushq %rbp
-movq %rsp, %rbp
-movq $0, %rdi               # -> Retorna o valor atual
-movq $12, %rax              # de brk e o armazena em rax
-syscall                
-popq %rbp
-ret
+    pushq %rbp
+    movq %rsp, %rbp
+    movq $0, %rdi               # -> Retorna o valor atual
+    movq $12, %rax              # de brk e o armazena em rax
+    syscall                
+    popq %rbp
+    ret
 
 dismiss_brk:
 pushq %rbp
@@ -34,9 +34,52 @@ popq %rbp
 ret
 
 memory_alloc:
+    pushq %rbp
+    movq %rsp, %rbp
+    movq %rdi, %r15             # -> %r15 = tamanho requisitado
+    call get_brk                # -> Chama pra pegar o brk atual
+    movq %rax, %r12             # -> %r12 = brk atual
+    movq TOPO_HEAP, %rbx        # -> %rbx = TOPO_HEAP             
+__loop:
+    cmp %rbx, %r12              # -> Verifica se %rbx atingiu o brk atual (fim da seção heap).
+    je __fora_loop              
+    movq (%rbx), %rcx           # -> %rcx = índice de uso do bloco em questão
+    addq $8, %rbx 
+    movq (%rbx), %r13           # -> %r13 = tamanho do bloco em questão
+    addq $8, %rbx
+    # cmp $1, %rcx                # -> Verifica se o bloco está ocupado.
+    # je __caso_indisponivel      # -> Se está, pular para o próximo bloco
+__teste_tamanho:                # -> Entra aqui se o bloco não está ocupado
+    cmp %r15, %r13              # -> Verifica se o tamanho do bloco atual é
+    je __caso_igual             # maior ou igual ao tamanho referente a alocação desejada.
+    # jg __caso_maior
+__caso_igual:                   # -> Entra aqui se os tamanhos forem iguais
+    subq $16, %rbx
+    movq $1, (%rbx)             # -> Marca o bloco atual como ocupado.
+    addq $16, %rbx              # -> Volta para o endereço a ser devolvido
+    jmp __fim             
+# __caso_indisponivel:
+   # addq %r13, %rbx             # -> Adiciona o tamanho do bloco atual no iterador, levando-o ao bloco seguinte. 
+   # jmp __loop
+__fora_loop:
+    addq %r15, %r12             # -> Adicona em brk atual o valor referente ao tamanho da alocação.
+    addq $16, %r12              # -> Adiciona 8 para disp. e 8 para armazenar o tamanho.
+    movq %r12, %rdi            
+    movq $12, %rax              # -> Redefine o brk.
+    syscall
+    movq $1, (%rbx)             # -> Marca como ocupado.
+    addq $8, %rbx
+    movq %r15, (%rbx)
+    addq $8, %rbx
+__fim:
+    movq %rbx, %rax             # -> Endereço do bloco alocado agora em %rax.
+    popq %rbp
+    ret                         # -> Retorna para o loop.
+
+/*
+memory_alloc:
 pushq %rbp
 movq %rsp, %rbp
-movq %rdi, %r15             # -> Coloca o tamanho no %r15
 call get_brk
 movq TOPO_HEAP, %rbx        # -> %rbx = TOPO_HEAP             
 movq %rax, %r12             # -> %r12 = brk atual
@@ -89,7 +132,8 @@ jmp __loop                  # ao bloco seguinte. -> Retorna para o loop.
 __fora_loop:
 addq %rdi, %r12             # -> Adicona em brk atual o valor referente ao tamanho da alocação.
 addq $16, %r12              # -> Adiciona 8 para disp. e 8 para armazenar o tamanho.
-movq %r12, %rdi            
+movq %r12, %rdi             
+movq %rdi, %r15
 movq $12, %rax              # -> Redefine o brk.
 syscall
 movq $1, (%rbx)             # -> Marca como ocupado.
@@ -100,6 +144,7 @@ __fim:
 movq %rbx, %rax             # -> Endereço do bloco alocado agora em %rax.
 popq %rbp
 ret
+*/
 
 memory_free:
 pushq %rbp
@@ -115,7 +160,7 @@ movq %rax, %r15             # -> %r15 = brk atual
 subq $16, %rbx
 # movq (%r12), %r13           # -> %r13 = disponibilidade do bloco.
 movq $0, (%rbx)               # -> Marca como livre.
-movq $0, %rax               # -> Retorna 0, indicando sucesso.
+movq $0, %rax                 # -> Retorna 0, indicando sucesso.
 # jmp __fim_erro
 # __erro:
 # movq $1, %rax               # -> Retorna 1, indicando erro.
