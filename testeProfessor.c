@@ -9,8 +9,8 @@ extern void *TOPO_HEAP;			//Você precisa ter a variável global que armazena o 
 
 
 void double_alloc_after_free(void **pointers_array){
-	pointers_array[1] = memory_alloc(100);
-	//pointers_array[2] = memory_alloc(100);
+	pointers_array[1] = memory_alloc(50);
+	pointers_array[2] = memory_alloc(100);
 }
 
 void simple_alloc(void **pointers_array){
@@ -34,6 +34,8 @@ int main() {
 	printf("\tTAMANHO: %s\n", *((long long*) (alloc_pointers[0]-8)) == 100 ? "CORRETO!" : "INCORRETO!");
     printf("\t%lld\n", *((long long*) (alloc_pointers[0]-8)));
 
+	printf("%p\n", alloc_pointers[0]);
+
 	printf("==>> DESALOCANDO UM ESPAÇO DE 100 BYTES:\n");
 	memory_free(alloc_pointers[0]);
 	//printf("\tLOCAL: %s\n", alloc_pointers[0]-16 == initial_brk ? "CORRETO!" : "INCORRETO!");
@@ -42,7 +44,7 @@ int main() {
 	printf("\tTAMANHO: %s\n", *((long long*) (alloc_pointers[0]-8)) == 100 ? "CORRETO!" : "INCORRETO!");
 
 	double_alloc_after_free(alloc_pointers);
-	printf("==>> ALOCANDO UM ESPAÇO DE 100 BYTES:\n");
+	printf("==>> ALOCANDO UM ESPAÇO DE 50 BYTES:\n");
 	printf("%p\n", alloc_pointers[1]);
 	printf("\tLOCAL: %s\n", alloc_pointers[1]-16 == initial_brk ? "CORRETO!" : "INCORRETO!");
 	printf("\tIND. DE USO: %s\n", *((long long*) (alloc_pointers[1]-16)) == 1 ? "CORRETO!" : "INCORRETO!");
