@@ -1,24 +1,20 @@
-# Compilador (montador)
-AS = as
 CC = gcc
+AS = as
+CFLAGS = -g -no-pie
+LFLAGS = -lm
 
-# Ligador
-LD = ld
+main: main.o memalloc.o
+	$(CC) $(CFLAGS) $(LFLAGS) -o main main.o memalloc.o
 
-# Objetos compilados
-OBJETOS = OperacoesHeap.o testeProfessor.o
-     
-all: testeProfessor
+memalloc.o: memalloc.s 
+	$(AS) $(CFLAGS) -c memalloc.s -o memalloc.o
 
-testeProfessor: $(OBJETOS)
-	$(CC) -no-pie -fno-pie $^ -o $@ -Wall -g
-
-
-OperacoesHeap.o: OperacoesHeap.s
-	$(AS) $< -o $@
-
-testeProfessor.o: testeProfessor.c memalloc.h
-	$(CC) -c $^ 
+main.o: main.c memalloc.h
+	$(CC) $(CFLAGS) -c main.c -o main.o
 
 clean:
-	rm -f $(OBJETOS) testeProfessor
+	rm -rf ./*.o
+
+purge:
+	rm -rf ./*.o
+	rm -rf main
